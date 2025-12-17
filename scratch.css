@@ -6,6 +6,18 @@ body {
     color: #111;
 }
 
+.top-anchor {
+    color: #333;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.top-anchor:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+
 h1, h2 {
     margin-top: 40px;
     color: #333;
