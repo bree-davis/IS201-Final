@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bree Davis | Home</title>
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* PAGE BACKGROUND */
+        body.home-body {
+            background-color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* WRAPPER */
+        .home-wrapper {
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        /* CARD */
+        .home-card {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border: 2px solid #111;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .home-card h1 {
+            font-size: 2.4rem;
+            margin-bottom: 10px;
+        }
+
+        .home-subtitle {
+            font-size: 1rem;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .home-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #222;
+            margin-bottom: 30px;
+        }
+
+        /* BUTTONS */
+        .home-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #111;
+            color: #111;
+            background-color: #e6e6e6;
+            font-weight: 500;
+            border-radius: 4px;
+            transition:
+                background-color 0.2s ease,
+                color 0.2s ease,
+                transform 0.15s ease;
+        }
+
+        .btn:hover {
+            background-color: #111;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="home-body">
+
+    <div class="home-wrapper">
+        <div class="home-card">
+            <h1>Bree Davis</h1>
+
+            <p class="home-subtitle">
+            Brigham Young University
+            </p>
+
+            <p class="home-description">
+            I am a sophomore at Brigham Young University currently studying Pre-Business with hopes to major in Experience Design and Management.
+            I have enjoyed this Information Systems 201 class, and hope you enjoy this website that I have created as a part of my final project this semester!
+            </p>
+
+        <div class="home-buttons">
+            <a href="resume.html" class="btn">View My Resume</a>
+            <a href="scratch.html" class="btn">View My Scratch Page</a>
+            <a href="ski-game.html" class="btn">Play a Game</a>
+        </div>
+    </div>
+
+</body>
+</html>

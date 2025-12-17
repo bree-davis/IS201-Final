@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Downhill Ski Escape</title>
+
+  <style>
+    /* =========================
+       COLOR THEME (EDIT HERE)
+       ========================= */
+    :root {
+      --bg-sky: #eef4fb;
+      --bg-snow: #ffffff;
+      --card: #ffffff;
+      --text-main: #2b2b2b;
+      --text-muted: #555;
+
+      --accent: #c1121f;   /* skier jacket */
+      --pine: #2f6b3f;
+      --wood: #a06a3b;
+      --shadow: rgba(0,0,0,0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+.header-bar {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  background-color: #f0f0f0;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+  padding: 28px 20px;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.header-bar h1 {
+  margin: 0 0 8px 0;
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+
+.header-bar p {
+  margin: 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+  color: #333;
+}
+
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #e6e6e6;
+      display: flex;
+      justify-content: center;
+      padding: 0px;
+    }
+
+    .page {
+      max-width: 820px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+    }
+
+    .intro {
+      max-width: 620px;
+      margin: 0 auto 35px;
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    .game-card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 26px;
+      box-shadow: 0 24px 48px var(--shadow);
+      margin: 0 auto;
+      display: block;
+      width: fit-content;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: linear-gradient(var(--bg-snow), #e6f2ff);
+      border-radius: 14px;
+    }
+
+    .instructions {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .footer {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      margin-top: 50px;
+      font-size: 0.85rem;
+      color: #777;
+    }
+
+    .nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 18px 0;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+  background-color: #f0f0f0;
+}
+
+.nav-buttons a {
+  text-decoration: none;
+  color: #111;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 6px 10px;
+}
+
+.nav-buttons a:hover {
+  text-decoration: underline;
+}
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <header class="header-bar">
+    <h1>Bree's Ski Slolam</h1>
+    <p>
+    Guide the skier safely down the mountain. Use the arrow keys to steer,
+    avoid pine trees and fallen logs, and see how far you can make it as
+    conditions gradually get tougher.
+    </p>
+  </header>
+
+
+  <div class="game-card">
+    <canvas id="game" width="440" height="620"></canvas>
+    <div class="instructions">
+      ← / → to steer · Any key to restart
+    </div>
+  </div>
+
+  <div class="footer">
+    <nav class="nav-buttons">
+        <a href="index.html">Home Page</a>
+        <a href="resume.html">Resume</a>
+        <a href="scratch.html">Scratch Page</a>
+    </nav>
+  </div>
+
+  
+
+<script>
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+
+  /* =========================
+     GAME STATE
+     ========================= */
+  const skier = { x: canvas.width / 2, y: 80, speed: 10 };
+  let obstacles = [];
+  let snowflakes = [];
+  let frame = 0;
+  let distance = 0;
+  let gameOver = false;
+  let worldSpeed = 3.5;
+  let highScore = 0;
+
+  /* =========================
+     SNOW PARTICLES
+     ========================= */
+  function createSnowflake() {
+    snowflakes.push({
+      x: Math.random() * canvas.width,
+      y: -10,
+      r: Math.random() * 2 + 1,
+      speed: Math.random() * 1.5 + 0.5
+    });
+  }
+
+  function updateSnow() {
+    snowflakes.forEach(flake => {
+      flake.y += flake.speed;
+    });
+
+    snowflakes = snowflakes.filter(flake => flake.y < canvas.height + 10);
+
+    if (Math.random() < 0.3) createSnowflake();
+  }
+
+  function drawSnow() {
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    snowflakes.forEach(flake => {
+      ctx.beginPath();
+      ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  /* =========================
+     SKIER
+     ========================= */
+  function drawSkier() {
+    // helmet
+    ctx.beginPath();
+    ctx.arc(skier.x, skier.y - 10, 7, 0, Math.PI * 2);
+    ctx.fillStyle = "#111";
+    ctx.fill();
+
+    // body
+    ctx.fillStyle = getComputedStyle(document.documentElement)
+      .getPropertyValue("--accent");
+    ctx.fillRect(skier.x - 6, skier.y, 12, 22);
+
+    // skis
+    ctx.strokeStyle = "#444";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(skier.x - 18, skier.y + 28);
+    ctx.lineTo(skier.x - 4, skier.y + 42);
+    ctx.moveTo(skier.x + 18, skier.y + 28);
+    ctx.lineTo(skier.x + 4, skier.y + 42);
+    ctx.stroke();
+  }
+
+  /* =========================
+     OBSTACLES
+     ========================= */
+  function createObstacle() {
+    const isTree = Math.random() < 0.65;
+    obstacles.push({
+      x: Math.random() * (canvas.width - 60) + 30,
+      y: canvas.height + 60,
+      type: isTree ? "tree" : "log"
+    });
+  }
+
+  function drawObstacle(o) {
+    if (o.type === "tree") {
+      ctx.fillStyle = getComputedStyle(document.documentElement)
+        .getPropertyValue("--pine");
+
+      ctx.beginPath();
+      ctx.moveTo(o.x, o.y);
+      ctx.lineTo(o.x - 18, o.y + 30);
+      ctx.lineTo(o.x + 18, o.y + 30);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(o.x, o.y + 15);
+      ctx.lineTo(o.x - 14, o.y + 42);
+      ctx.lineTo(o.x + 14, o.y + 42);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#8b5a2b";
+      ctx.fillRect(o.x - 4, o.y + 42, 8, 16);
+    } else {
+      ctx.fillStyle = getComputedStyle(document.documentElement)
+        .getPropertyValue("--wood");
+      ctx.fillRect(o.x - 24, o.y + 10, 48, 14);
+    }
+  }
+
+  function updateObstacles() {
+    obstacles.forEach(o => {
+      o.y -= worldSpeed;
+
+      if (
+        skier.x > o.x - 26 &&
+        skier.x < o.x + 26 &&
+        skier.y + 40 > o.y &&
+        skier.y < o.y + 50
+      ) {
+        gameOver = true;
+        highScore = Math.max(highScore, distance);
+      }
+    });
+
+    obstacles = obstacles.filter(o => o.y > -80);
+  }
+
+  /* =========================
+     HUD + FLOW
+     ========================= */
+  function drawDistance() {
+    ctx.fillStyle = "#000";
+    ctx.font = "18px system-ui";
+    ctx.fillText("Distance: " + distance, 16, 26);
+  }
+
+  function drawGameOver() {
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // ✅ CENTER TEXT
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "32px system-ui";
+  ctx.fillText("Wipeout!", canvas.width / 2, 260);
+
+  ctx.font = "18px system-ui";
+  ctx.fillText("Distance: " + distance, canvas.width / 2, 300);
+  ctx.fillText("Best: " + highScore, canvas.width / 2, 330);
+
+  ctx.font = "16px system-ui";
+  ctx.fillText(" Click on Any Key to Try Again", canvas.width / 2, 370);
+  ctx.textAlign = "left";
+}
+
+  function resetGame() {
+    obstacles = [];
+    snowflakes = [];
+    frame = 0;
+    distance = 0;
+    worldSpeed = 3.5;
+    gameOver = false;
+  }
+
+  function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (gameOver) {
+      drawGameOver();
+      return;
+    }
+
+    frame++;
+    if (frame % 36 === 0) createObstacle();
+
+    // gradual speed ramp
+    if (frame % 300 === 0) {
+      worldSpeed += 0.35;
+      skier.speed += 0.25;
+    }
+
+    updateSnow();
+    updateObstacles();
+
+    drawSnow();
+    obstacles.forEach(drawObstacle);
+    drawSkier();
+    drawDistance();
+
+    distance++;
+    requestAnimationFrame(update);
+  }
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" && skier.x > 30) skier.x -= skier.speed;
+    if (e.key === "ArrowRight" && skier.x < canvas.width - 30) skier.x += skier.speed;
+    if (gameOver && !e.repeat) {
+      resetGame();
+      update();
+    }
+  });
+
+  update();
+</script>
+
+</body>
+</html>
